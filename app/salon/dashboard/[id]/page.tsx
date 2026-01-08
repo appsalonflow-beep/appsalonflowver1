@@ -561,7 +561,77 @@ ${bookingLink}
             </p>
           </div>
         </div>
+ {/* Payments Tracking Table */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 animate-fade-in">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-primary-600" />
+              Seguimiento de Pagos (Hoy)
+            </h2>
+            <span className="text-sm text-gray-600">
+              Total ingresos hoy: <span className="font-bold text-primary-600">${incomesToday.toLocaleString()}</span>
+            </span>
+          </div>
 
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cliente</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Servicio</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Método de Pago</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Importe</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {appointments
+                  .filter((a) => {
+                    const raw = (a.createdAt as unknown as string) || '';
+                    const datePart = raw.includes('T') ? raw.split('T')[0] : raw;
+                    const todayPart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+                    return datePart === todayPart;
+                  })
+                  .map((a) => {
+                    const amount = a.finalPrice ?? a.originalPrice ?? 0;
+                    return (
+                      <tr key={a.id}>
+                        <td className="px-4 py-2 whitespace-nowrap text-gray-700">{formatDate(a.date)}</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-gray-900 font-medium">{a.clientName}</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-gray-700">{a.service}</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-gray-700">{a.paymentMethod || '-'}</td>
+                        <td className="px-4 py-2 whitespace-nowrap">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              a.status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : a.status === 'confirmed'
+                                ? 'bg-green-100 text-green-800'
+                                : a.status === 'completed'
+                                ? 'bg-accent-100 text-accent-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {a.status === 'pending'
+                              ? 'Pendiente'
+                              : a.status === 'confirmed'
+                              ? 'Confirmada'
+                              : a.status === 'completed'
+                              ? 'Completada'
+                              : 'Cancelada'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 whitespace-nowrap text-right font-semibold text-gray-900">
+                          {amount ? `$${amount.toLocaleString()}` : '-'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+        </div>
         {/* Appointments Section */}
         <div className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
