@@ -52,7 +52,9 @@ export async function POST(req: NextRequest) {
       pending: `${backUrlBase}/client`,
     },
     auto_return: 'approved',
-    external_reference: appointmentId,
+    // Usamos un prefijo para que el webhook pueda distinguir pagos de turnos
+    // de otros tipos de pagos (como suscripciones/planes).
+    external_reference: `appointment:${appointmentId}`,
     notification_url: `${backUrlBase}/api/webhooks/mercadopago?source_news=ipn`,
   };
 
